@@ -110,6 +110,7 @@ def add_holding(companies):
     }
 
     print(f"{ticker} added successfully!")
+    print("current portfolio:",portfolio)
 
 
 # 5. Update current stock price
@@ -142,8 +143,9 @@ def update_current_price():
 
 # 6. Calculate performance
 def calculate_performance():
+    print("Calculating portfolio performance...",portfolio)
     if not portfolio:
-        print("Portfolio is empty!")
+        print("\nportfolio is empty")
         return None
 
     results = []
@@ -185,7 +187,8 @@ def calculate_performance():
             print("profit/loss:",round(profit_loss,2))
             print("gain/loss:",round(percentage,2),"%")
         #store calculated details
-        results.append({"ticker":ticker,"company":details["company"],"buy_price":buy_price,"current-price":current_price,"quantity":
+        results.append({"ticker":ticker,"company":details["company"],"buy_price":buy_price, 
+                        "current_price":current_price,"quantity":
                         quantity,"investment":investment,"current_value":current_value,"profit_loss":profit_loss,"percentage":percentage
                         })  
         summary = None
@@ -202,16 +205,25 @@ def calculate_performance():
             print("Total Current Value:",round(total_current_value,2))
             print("Total Profit/Loss:",round(overall_profit_loss,2))
             print("Overall Gain/Loss Percentage:",round(overall_percentage,2),"%")
+        return results,summary    
 
                        
  # 7. Export portfolio to CSV
 def export_portfolio():
     print("\nStarting CSV export...")
+    print("Calculating performance before export...",portfolio)
 
     performance = calculate_performance()
+    print("performance result",performance)
+
+    print("Performance calculated successfully!")
+
 
     if performance is None:
+        print("Export stopped: Portfolio is empty.")
         return
+
+    print("Preparing CSV data...")
 
     results, summary = performance
 
@@ -233,6 +245,8 @@ def export_portfolio():
     )
 
     try:
+        print("Creating CSV file...")
+
         with open(OUTPUT_FILE, "w",
                   newline="",
                   encoding="utf-8") as file:
@@ -251,32 +265,21 @@ def export_portfolio():
                     "Purchase Price": item["buy_price"],
                     "Current Price": item["current_price"],
                     "Quantity": item["quantity"],
-                    "Total Investment": round(
-                        item["investment"], 2
-                    ),
+                    "Total Investment": round(item["investment"], 2),
                     "Current Value": item["current_value"],
                     "Profit/Loss": item["profit_loss"],
                     "Gain/Loss Percentage": item["percentage"]
                 })
 
-            # Write total summary if all prices are available
             if summary is not None:
                 writer.writerow({
                     "Date": current_date,
                     "Ticker": "TOTAL",
                     "Company": "Portfolio Summary",
-                    "Total Investment": round(
-                        summary["total_investment"], 2
-                    ),
-                    "Current Value": round(
-                        summary["total_current_value"], 2
-                    ),
-                    "Profit/Loss": round(
-                        summary["total_profit_loss"], 2
-                    ),
-                    "Gain/Loss Percentage": round(
-                        summary["overall_percentage"], 2
-                    )
+                    "Total Investment": round(summary["total_investment"], 2),
+                    "Current Value": round(summary["total_current_value"], 2),
+                    "Profit/Loss": round(summary["total_profit_loss"], 2),
+                    "Gain/Loss Percentage": round(summary["overall_percentage"], 2)
                 })
 
         print("\nCSV exported successfully!")
@@ -284,7 +287,6 @@ def export_portfolio():
 
     except OSError as error:
         print("CSV export failed:", error)
-
 
 # 8. View portfolio
 def view_portfolio():
